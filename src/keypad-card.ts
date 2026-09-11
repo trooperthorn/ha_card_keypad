@@ -8,9 +8,10 @@
  * service call. It is never written to an entity, an attribute, or storage.
  */
 
-import { css, html, LitElement, nothing } from "lit";
+import { css, html, LitElement, nothing, type PropertyValues } from "lit";
 import { property, state } from "lit/decorators.js";
 import { parseConfig, SERVICE_FOR_ACTION } from "./config";
+import { MatrixRain } from "./matrix-rain";
 import type { HomeAssistant, KeypadCardConfig } from "./types";
 
 declare const __CARD_VERSION__: string;
@@ -27,72 +28,141 @@ class KeypadCard extends LitElement {
   @state() private notice: { kind: "ok" | "error"; text: string } | null = null;
 
   private clearTimer: ReturnType<typeof setTimeout> | null = null;
+  private rains: MatrixRain[] = [];
+  private resizeObserver: ResizeObserver | null = null;
 
   static override styles = css`
     :host {
       display: block;
+      --kp-fg: var(--primary-text-color, inherit);
+      --kp-key-bg: var(--secondary-background-color, #eee);
+      --kp-submit-bg: var(--primary-color, #03a9f4);
+      --kp-submit-fg: var(--text-primary-color, #fff);
+      --kp-font: inherit;
+      --kp-glow: none;
     }
     ha-card {
       padding: 16px;
       container-type: inline-size;
+      color: var(--kp-fg);
+      font-family: var(--kp-font);
+      position: relative;
+      overflow: hidden;
+    }
+    ha-card.phosphor {
+      background: #020803;
+      --kp-fg: #33ff66;
+      --kp-key-bg: #062a10;
+      --kp-submit-bg: #0b5a22;
+      --kp-submit-fg: #b6ffc9;
+      --kp-font: "VT323", "Share Tech Mono", "IBM Plex Mono", "Courier New", monospace;
+      --kp-glow: 0 0 6px rgba(51, 255, 102, 0.75), 0 0 14px rgba(51, 255, 102, 0.35);
+      text-shadow: var(--kp-glow);
+    }
+    ha-card.phosphor::after {
+      /* scanlines */
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: repeating-linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 0) 0px,
+        rgba(0, 0, 0, 0) 2px,
+        rgba(0, 0, 0, 0.18) 3px
+      );
     }
     .body {
-      display: flex;
-      flex-direction: column;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+      grid-template-areas: "left keypad right";
       align-items: center;
       gap: 16px;
     }
-    .body.landscape {
-      flex-direction: row;
-      justify-content: center;
-      gap: 32px;
+    .body.portrait {
+      grid-template-columns: 1fr;
+      grid-template-areas: "left" "keypad" "right";
     }
-    @container (min-width: 560px) {
+    @container (max-width: 559px) {
       .body.auto {
-        flex-direction: row;
-        justify-content: center;
-        gap: 32px;
+        grid-template-columns: 1fr;
+        grid-template-areas: "left" "keypad" "right";
       }
     }
-    .panel {
+    .side {
+      position: relative;
+      min-width: 0;
+      min-height: calc(var(--kp-key) * 3);
       display: flex;
       flex-direction: column;
-      align-items: center;
+      justify-content: center;
       gap: 12px;
-      min-width: 0;
+      text-align: center;
+    }
+    .side.left {
+      grid-area: left;
+    }
+    .side.right {
+      grid-area: right;
+    }
+    canvas.rain {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0.35;
+      z-index: 0;
+      pointer-events: none;
+    }
+    .side > :not(canvas) {
+      position: relative;
+      z-index: 1;
     }
     .title {
-      font-size: calc(var(--kp-key) * 0.28);
+      font-size: calc(var(--kp-key) * 0.24);
       font-weight: 500;
-      text-align: center;
+      line-height: 1.15;
     }
     .display {
-      font-family: monospace;
-      font-size: calc(var(--kp-key) * 0.5);
-      letter-spacing: 0.35em;
-      text-align: center;
+      font-family: var(--kp-font);
+      font-size: calc(var(--kp-key) * 0.55);
+      letter-spacing: 0.3em;
       min-height: 1.4em;
     }
+    .caption,
+    .notice {
+      font-size: calc(var(--kp-key) * 0.18);
+      line-height: 1.2;
+    }
     .grid {
+      grid-area: keypad;
       display: grid;
       grid-template-columns: repeat(3, var(--kp-key));
       gap: calc(var(--kp-key) * 0.16);
       justify-content: center;
+      position: relative;
+      z-index: 1;
     }
     button {
       font: inherit;
+      font-family: var(--kp-font);
       font-size: calc(var(--kp-key) * 0.42);
       width: var(--kp-key);
       height: var(--kp-key);
       border-radius: 50%;
       border: none;
-      background: var(--secondary-background-color, #eee);
-      color: var(--primary-text-color, inherit);
+      background: var(--kp-key-bg);
+      color: var(--kp-fg);
       cursor: pointer;
       touch-action: manipulation;
+      text-shadow: var(--kp-glow);
+    }
+    ha-card.phosphor button {
+      border: 1px solid rgba(51, 255, 102, 0.45);
+      box-shadow: inset 0 0 10px rgba(51, 255, 102, 0.15);
     }
     button:active {
-      filter: brightness(0.85);
+      filter: brightness(1.3);
     }
     button:disabled {
       opacity: 0.4;
@@ -101,21 +171,23 @@ class KeypadCard extends LitElement {
     button.submit {
       grid-column: 1 / -1;
       width: auto;
-      height: calc(var(--kp-key) * 0.75);
+      height: calc(var(--kp-key) * 0.7);
       font-size: calc(var(--kp-key) * 0.3);
-      border-radius: calc(var(--kp-key) * 0.375);
-      background: var(--primary-color, #03a9f4);
-      color: var(--text-primary-color, #fff);
-    }
-    .notice {
-      text-align: center;
-      font-size: calc(var(--kp-key) * 0.22);
+      border-radius: calc(var(--kp-key) * 0.35);
+      background: var(--kp-submit-bg);
+      color: var(--kp-submit-fg);
     }
     .notice.error {
-      color: var(--error-color, #b00020);
+      color: var(--error-color, #ff5c5c);
+    }
+    ha-card.phosphor .notice.error {
+      color: #ffb347;
     }
     .notice.ok {
       color: var(--success-color, #0a7c3c);
+    }
+    ha-card.phosphor .notice.ok {
+      color: #b6ffc9;
     }
     .errors {
       color: var(--error-color, #b00020);
@@ -139,10 +211,36 @@ class KeypadCard extends LitElement {
     return { entity: "alarm_control_panel.example", action: "disarm" };
   }
 
+  override connectedCallback(): void {
+    super.connectedCallback();
+    this.resizeObserver = new ResizeObserver(() => this.rains.forEach((r) => r.resize()));
+    this.resizeObserver.observe(this);
+  }
+
   override disconnectedCallback(): void {
     super.disconnectedCallback();
     this.stopClearTimer();
+    this.stopRain();
+    this.resizeObserver?.disconnect();
+    this.resizeObserver = null;
     this.code = "";
+  }
+
+  override updated(changed: PropertyValues): void {
+    if (changed.has("config") || changed.has("errors")) {
+      this.stopRain();
+      if (this.config?.matrix && this.errors.length === 0) {
+        const canvases = this.renderRoot.querySelectorAll<HTMLCanvasElement>("canvas.rain");
+        const size = Math.max(12, Math.round(this.config.key_size * 0.16));
+        this.rains = Array.from(canvases, (c) => new MatrixRain(c, "#33ff66", size, 12));
+        this.rains.forEach((r) => r.start());
+      }
+    }
+  }
+
+  private stopRain(): void {
+    this.rains.forEach((r) => r.stop());
+    this.rains = [];
   }
 
   private stopClearTimer(): void {
@@ -211,17 +309,16 @@ class KeypadCard extends LitElement {
     if (!config) return nothing;
     const entity = this.hass?.states[config.entity];
     const missing = entity === undefined;
-    return html`<ha-card style="--kp-key: ${config.key_size}px">
+    const rain = config.matrix ? html`<canvas class="rain"></canvas>` : nothing;
+    const cursor = config.theme === "phosphor" ? "_" : "";
+    return html`<ha-card class=${config.theme} style="--kp-key: ${config.key_size}px">
       <div class="body ${config.layout}">
-        <div class="panel">
+        <div class="side left">
+          ${rain}
           ${config.title ? html`<div class="title">${config.title}</div>` : nothing}
-          ${missing
-            ? html`<div class="notice error">${config.entity} is not available</div>`
-            : nothing}
-          <div class="display" aria-label="code entry">${"\u2022".repeat(this.code.length)}</div>
-          ${this.notice
-            ? html`<div class="notice ${this.notice.kind}">${this.notice.text}</div>`
-            : nothing}
+          <div class="display" aria-label="code entry">
+            ${"•".repeat(this.code.length)}${cursor}
+          </div>
         </div>
         <div class="grid">
           ${KEYS.map(
@@ -231,7 +328,7 @@ class KeypadCard extends LitElement {
               aria-label=${key}
               @click=${() => this.press(key)}
             >
-              ${key === "clear" ? "C" : key === "back" ? "\u232b" : key}
+              ${key === "clear" ? "C" : key === "back" ? "⌫" : key}
             </button>`,
           )}
           <button
@@ -242,6 +339,16 @@ class KeypadCard extends LitElement {
           >
             ${config.submit_label}
           </button>
+        </div>
+        <div class="side right">
+          ${rain}
+          ${config.caption ? html`<div class="caption">${config.caption}</div>` : nothing}
+          ${missing
+            ? html`<div class="notice error">${config.entity} is not available</div>`
+            : nothing}
+          ${this.notice
+            ? html`<div class="notice ${this.notice.kind}">${this.notice.text}</div>`
+            : nothing}
         </div>
       </div>
     </ha-card>`;
