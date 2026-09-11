@@ -33,7 +33,13 @@ export interface KeypadCardConfig {
   clear_after_ms: number;
   key_size: number;
   layout: KeypadLayout;
+  theme: KeypadTheme;
+  matrix: boolean;
+  caption?: string;
 }
+
+/** plain follows the Home Assistant theme; phosphor is green on black with a terminal face. */
+export type KeypadTheme = "plain" | "phosphor";
 
 /** auto switches to side-by-side when the card is at least 560 px wide. */
 export type KeypadLayout = "auto" | "portrait" | "landscape";
