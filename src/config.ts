@@ -3,7 +3,13 @@
  * a card with a configuration error never calls a service.
  */
 
-import type { KeypadAction, KeypadCardConfig, KeypadLayout, KeypadTheme } from "./types";
+import type {
+  KeypadAction,
+  KeypadCardConfig,
+  KeypadIcon,
+  KeypadLayout,
+  KeypadTheme,
+} from "./types";
 
 const ACTIONS: ReadonlySet<string> = new Set([
   "disarm",
@@ -27,7 +33,15 @@ const KNOWN_KEYS = new Set([
   "theme",
   "matrix",
   "caption",
+  "fill",
+  "left_heading",
+  "left_text",
+  "left_icon",
+  "right_heading",
+  "right_entity",
 ]);
+
+const ICONS: ReadonlySet<string> = new Set(["none", "shield-lock"]);
 
 const THEMES: ReadonlySet<string> = new Set(["plain", "phosphor"]);
 
@@ -106,6 +120,19 @@ export function parseConfig(raw: unknown): ParseResult {
   if (typeof matrix !== "boolean") errors.push("matrix must be true or false");
   const caption = input.caption;
   if (caption !== undefined && typeof caption !== "string") errors.push("caption must be a string");
+  const fill = input.fill ?? false;
+  if (typeof fill !== "boolean") errors.push("fill must be true or false");
+  const leftIcon = input.left_icon ?? "none";
+  if (typeof leftIcon !== "string" || !ICONS.has(leftIcon)) {
+    errors.push("left_icon must be none or shield-lock");
+  }
+  for (const name of ["left_heading", "left_text", "right_heading"] as const) {
+    if (input[name] !== undefined && typeof input[name] !== "string") errors.push(`${name} must be a string`);
+  }
+  const rightEntity = input.right_entity;
+  if (rightEntity !== undefined && (typeof rightEntity !== "string" || !rightEntity.includes("."))) {
+    errors.push("right_entity must be an entity id");
+  }
 
   if (errors.length > 0) return { errors };
   return {
@@ -124,6 +151,12 @@ export function parseConfig(raw: unknown): ParseResult {
       theme: theme as KeypadTheme,
       matrix: matrix as boolean,
       caption: caption as string | undefined,
+      fill: fill as boolean,
+      left_heading: input.left_heading as string | undefined,
+      left_text: input.left_text as string | undefined,
+      left_icon: leftIcon as KeypadIcon,
+      right_heading: input.right_heading as string | undefined,
+      right_entity: rightEntity as string | undefined,
     },
   };
 }

@@ -27,6 +27,12 @@ layout: auto              # auto (three columns when the card is 560 px or wider
 theme: plain              # plain follows your HA theme; phosphor is green on black with a terminal face
 matrix: false             # digital-rain canvas behind the side panels (12 fps, stops when hidden)
 caption: Codes are checked by the panel   # optional text for the right panel
+fill: false               # true makes the card fill the viewport (for a fullscreen Browser Mod popup)
+left_icon: none           # none, or shield-lock (a chained, padlocked shield drawn inline)
+left_heading: Security Threat   # optional heading in the left panel
+left_text: Threat Detected      # optional text under the heading
+right_heading: Sensor           # optional heading in the right panel
+right_entity: binary_sensor.x   # optional entity whose name and state show in the right panel
 ```
 
 Layout: the keypad sits in the centre; the title and the code readout are on the left, the
