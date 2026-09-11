@@ -848,10 +848,10 @@ De = $, De.styles = o`
     }
     .body {
       display: grid;
-      grid-template-columns: 1fr auto 1fr;
+      grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
       grid-template-areas: "left keypad right";
       align-items: center;
-      gap: 24px;
+      gap: 16px;
     }
     .body.portrait {
       grid-template-columns: 1fr;
@@ -893,8 +893,9 @@ De = $, De.styles = o`
       z-index: 1;
     }
     .title {
-      font-size: calc(var(--kp-key) * 0.3);
+      font-size: calc(var(--kp-key) * 0.24);
       font-weight: 500;
+      line-height: 1.15;
     }
     .display {
       font-family: var(--kp-font);
@@ -904,7 +905,8 @@ De = $, De.styles = o`
     }
     .caption,
     .notice {
-      font-size: calc(var(--kp-key) * 0.24);
+      font-size: calc(var(--kp-key) * 0.18);
+      line-height: 1.2;
     }
     .grid {
       grid-area: keypad;
@@ -970,5 +972,5 @@ De = $, De.styles = o`
 	name: "Keypad Card",
 	description: "Numeric keypad that submits a code to an alarm control panel action.",
 	preview: !1
-}), console.info("%c keypad-card %c 2026.09.11.2 ", "color: white; background: #03a9f4", "");
+}), console.info("%c keypad-card %c 2026.09.11.3 ", "color: white; background: #03a9f4", "");
 //#endregion
