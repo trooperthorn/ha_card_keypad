@@ -74,10 +74,10 @@ class KeypadCard extends LitElement {
     }
     .body {
       display: grid;
-      grid-template-columns: 1fr auto 1fr;
+      grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
       grid-template-areas: "left keypad right";
       align-items: center;
-      gap: 24px;
+      gap: 16px;
     }
     .body.portrait {
       grid-template-columns: 1fr;
@@ -119,8 +119,9 @@ class KeypadCard extends LitElement {
       z-index: 1;
     }
     .title {
-      font-size: calc(var(--kp-key) * 0.3);
+      font-size: calc(var(--kp-key) * 0.24);
       font-weight: 500;
+      line-height: 1.15;
     }
     .display {
       font-family: var(--kp-font);
@@ -130,7 +131,8 @@ class KeypadCard extends LitElement {
     }
     .caption,
     .notice {
-      font-size: calc(var(--kp-key) * 0.24);
+      font-size: calc(var(--kp-key) * 0.18);
+      line-height: 1.2;
     }
     .grid {
       grid-area: keypad;
