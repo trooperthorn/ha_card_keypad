@@ -14,7 +14,21 @@ describe("parseConfig", () => {
       clear_after_ms: 30000,
       key_size: 96,
       layout: "auto",
+      theme: "plain",
+      matrix: false,
     });
+  });
+
+  it("validates theme, matrix, and caption", () => {
+    expect(parseConfig({ entity: "alarm_control_panel.a", theme: "amber" }).errors).toContain(
+      "theme must be plain or phosphor",
+    );
+    expect(parseConfig({ entity: "alarm_control_panel.a", matrix: "yes" }).errors).toContain(
+      "matrix must be true or false",
+    );
+    expect(
+      parseConfig({ entity: "alarm_control_panel.a", theme: "phosphor", matrix: true, caption: "hi" }).config,
+    ).toMatchObject({ theme: "phosphor", matrix: true, caption: "hi" });
   });
 
   it("validates key_size and layout", () => {

@@ -3,7 +3,7 @@
  * a card with a configuration error never calls a service.
  */
 
-import type { KeypadAction, KeypadCardConfig, KeypadLayout } from "./types";
+import type { KeypadAction, KeypadCardConfig, KeypadLayout, KeypadTheme } from "./types";
 
 const ACTIONS: ReadonlySet<string> = new Set([
   "disarm",
@@ -24,7 +24,12 @@ const KNOWN_KEYS = new Set([
   "clear_after_ms",
   "key_size",
   "layout",
+  "theme",
+  "matrix",
+  "caption",
 ]);
+
+const THEMES: ReadonlySet<string> = new Set(["plain", "phosphor"]);
 
 const LAYOUTS: ReadonlySet<string> = new Set(["auto", "portrait", "landscape"]);
 
@@ -93,6 +98,14 @@ export function parseConfig(raw: unknown): ParseResult {
   if (typeof layout !== "string" || !LAYOUTS.has(layout)) {
     errors.push("layout must be auto, portrait, or landscape");
   }
+  const theme = input.theme ?? "plain";
+  if (typeof theme !== "string" || !THEMES.has(theme)) {
+    errors.push("theme must be plain or phosphor");
+  }
+  const matrix = input.matrix ?? false;
+  if (typeof matrix !== "boolean") errors.push("matrix must be true or false");
+  const caption = input.caption;
+  if (caption !== undefined && typeof caption !== "string") errors.push("caption must be a string");
 
   if (errors.length > 0) return { errors };
   return {
@@ -108,6 +121,9 @@ export function parseConfig(raw: unknown): ParseResult {
       clear_after_ms: clearAfter,
       key_size: keySize,
       layout: layout as KeypadLayout,
+      theme: theme as KeypadTheme,
+      matrix: matrix as boolean,
+      caption: caption as string | undefined,
     },
   };
 }
