@@ -23,8 +23,16 @@ min_length: 4             # default 4, 1 to 16
 max_length: 8             # default 8, 1 to 16
 clear_after_ms: 30000     # partial code is wiped after this idle time; 0 disables
 key_size: 96              # key diameter in px, 48 to 200; everything else scales with it
-layout: auto              # auto (side by side when the card is 560 px or wider), portrait, landscape
+layout: auto              # auto (three columns when the card is 560 px or wider), portrait, landscape
+theme: plain              # plain follows your HA theme; phosphor is green on black with a terminal face
+matrix: false             # digital-rain canvas behind the side panels (12 fps, stops when hidden)
+caption: Codes are checked by the panel   # optional text for the right panel
 ```
+
+Layout: the keypad sits in the centre; the title and the code readout are on the left, the
+caption and any result on the right. The phosphor theme uses the first of VT323, Share
+Tech Mono, IBM Plex Mono, or Courier New that the device has; nothing is downloaded, so
+install VT323 or add it as a frontend font resource if you want the full look.
 
 Any other option is a configuration error, including `code`: the card refuses
 to carry a code in YAML by design.
