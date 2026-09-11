@@ -1,0 +1,27 @@
+{
+  "name": "keypad-card",
+  "version": "0.0.0",
+  "description": "Code keypad card for Home Assistant: type a code, submit it to an alarm control panel action, keep the code out of Home Assistant state.",
+  "license": "MIT",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/trooperthorn/ha_card_keypad"
+  },
+  "scripts": {
+    "build": "vite build",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src tests",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^26.4.0",
+    "eslint": "^10.9.1",
+    "lit": "^3.3.3",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.68.0",
+    "vite": "^8.2.2",
+    "vitest": "^4.1.11"
+  }
+}
