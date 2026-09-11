@@ -16,7 +16,31 @@ describe("parseConfig", () => {
       layout: "auto",
       theme: "plain",
       matrix: false,
+      fill: false,
+      left_icon: "none",
     });
+  });
+
+  it("validates the side panel options", () => {
+    expect(parseConfig({ entity: "alarm_control_panel.a", fill: 1 }).errors).toContain(
+      "fill must be true or false",
+    );
+    expect(parseConfig({ entity: "alarm_control_panel.a", left_icon: "skull" }).errors).toContain(
+      "left_icon must be none or shield-lock",
+    );
+    expect(parseConfig({ entity: "alarm_control_panel.a", right_entity: "nope" }).errors).toContain(
+      "right_entity must be an entity id",
+    );
+    expect(
+      parseConfig({
+        entity: "alarm_control_panel.a",
+        fill: true,
+        left_icon: "shield-lock",
+        left_heading: "Security Threat",
+        left_text: "Threat Detected",
+        right_entity: "input_boolean.t",
+      }).config,
+    ).toMatchObject({ fill: true, left_icon: "shield-lock", right_entity: "input_boolean.t" });
   });
 
   it("validates theme, matrix, and caption", () => {

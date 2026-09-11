@@ -36,7 +36,16 @@ export interface KeypadCardConfig {
   theme: KeypadTheme;
   matrix: boolean;
   caption?: string;
+  fill: boolean;
+  left_heading?: string;
+  left_text?: string;
+  left_icon: KeypadIcon;
+  right_heading?: string;
+  right_entity?: string;
 }
+
+/** Built-in emblems drawn inline; none hides the emblem. */
+export type KeypadIcon = "none" | "shield-lock";
 
 /** plain follows the Home Assistant theme; phosphor is green on black with a terminal face. */
 export type KeypadTheme = "plain" | "phosphor";

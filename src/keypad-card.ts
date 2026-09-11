@@ -12,6 +12,7 @@ import { css, html, LitElement, nothing, type PropertyValues } from "lit";
 import { property, state } from "lit/decorators.js";
 import { parseConfig, SERVICE_FOR_ACTION } from "./config";
 import { MatrixRain } from "./matrix-rain";
+import { SHIELD_LOCK } from "./icons";
 import type { HomeAssistant, KeypadCardConfig } from "./types";
 
 declare const __CARD_VERSION__: string;
@@ -40,6 +41,17 @@ class KeypadCard extends LitElement {
       --kp-submit-fg: var(--text-primary-color, #fff);
       --kp-font: inherit;
       --kp-glow: none;
+    }
+    :host(.fill),
+    :host(.fill) ha-card {
+      height: 100vh;
+      height: 100dvh;
+      box-sizing: border-box;
+      border-radius: 0;
+      border: none;
+    }
+    :host(.fill) .body {
+      height: 100%;
     }
     ha-card {
       padding: 16px;
@@ -98,6 +110,40 @@ class KeypadCard extends LitElement {
       justify-content: center;
       gap: 12px;
       text-align: center;
+      align-self: stretch;
+    }
+    .heading {
+      font-size: calc(var(--kp-key) * 0.42);
+      font-weight: 600;
+      line-height: 1.1;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .text {
+      font-size: calc(var(--kp-key) * 0.3);
+      line-height: 1.2;
+    }
+    .emblem {
+      width: min(60%, calc(var(--kp-key) * 2.6));
+      margin: 0 auto;
+      filter: drop-shadow(var(--kp-glow));
+    }
+    .entity-name {
+      font-size: calc(var(--kp-key) * 0.24);
+      opacity: 0.85;
+    }
+    .entity-state {
+      font-size: calc(var(--kp-key) * 0.5);
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .entity-state.on {
+      color: #ffb347;
+    }
+    .grid .display {
+      grid-column: 1 / -1;
+      text-align: center;
     }
     .side.left {
       grid-area: left;
@@ -110,11 +156,11 @@ class KeypadCard extends LitElement {
       inset: 0;
       width: 100%;
       height: 100%;
-      opacity: 0.35;
+      opacity: 0.4;
       z-index: 0;
       pointer-events: none;
     }
-    .side > :not(canvas) {
+    .body {
       position: relative;
       z-index: 1;
     }
@@ -311,14 +357,22 @@ class KeypadCard extends LitElement {
     const missing = entity === undefined;
     const rain = config.matrix ? html`<canvas class="rain"></canvas>` : nothing;
     const cursor = config.theme === "phosphor" ? "_" : "";
+    this.classList.toggle("fill", config.fill);
+    const rightObj = config.right_entity ? this.hass?.states[config.right_entity] : undefined;
+    const right = config.right_entity
+      ? {
+          name: String(rightObj?.attributes.friendly_name ?? config.right_entity),
+          state: rightObj?.state ?? "unavailable",
+        }
+      : undefined;
     return html`<ha-card class=${config.theme} style="--kp-key: ${config.key_size}px">
+      ${rain}
       <div class="body ${config.layout}">
         <div class="side left">
-          ${rain}
+          ${config.left_icon === "shield-lock" ? html`<div class="emblem">${SHIELD_LOCK}</div>` : nothing}
+          ${config.left_heading ? html`<div class="heading">${config.left_heading}</div>` : nothing}
+          ${config.left_text ? html`<div class="text">${config.left_text}</div>` : nothing}
           ${config.title ? html`<div class="title">${config.title}</div>` : nothing}
-          <div class="display" aria-label="code entry">
-            ${"•".repeat(this.code.length)}${cursor}
-          </div>
         </div>
         <div class="grid">
           ${KEYS.map(
@@ -339,9 +393,16 @@ class KeypadCard extends LitElement {
           >
             ${config.submit_label}
           </button>
+          <div class="display" aria-label="code entry">
+            ${"•".repeat(this.code.length)}${cursor}
+          </div>
         </div>
         <div class="side right">
-          ${rain}
+          ${config.right_heading ? html`<div class="heading">${config.right_heading}</div>` : nothing}
+          ${right
+            ? html`<div class="entity-name">${right.name}</div>
+                <div class="entity-state ${right.state}">${right.state}</div>`
+            : nothing}
           ${config.caption ? html`<div class="caption">${config.caption}</div>` : nothing}
           ${missing
             ? html`<div class="notice error">${config.entity} is not available</div>`
