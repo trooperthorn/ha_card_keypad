@@ -704,7 +704,7 @@ var Oe = "0123456789ABCDEF<>[]{}=+-*/%#@$&", ke = class {
   </g>
 </svg>`;
 //#endregion
-//#region \0@oxc-project+runtime@0.147.0/helpers/esm/decorate.js
+//#region \0@oxc-project+runtime@0.151.0/helpers/esm/decorate.js
 function Q(e, t, n, r) {
 	var i = arguments.length, a = i < 3 ? t : r === null ? r = Object.getOwnPropertyDescriptor(t, n) : r, o;
 	if (typeof Reflect == "object" && typeof Reflect.decorate == "function") a = Reflect.decorate(e, t, n, r);
@@ -762,12 +762,12 @@ var je, Me = [
 		this.clearTimer !== null && (clearTimeout(this.clearTimer), this.clearTimer = null);
 	}
 	armClearTimer() {
-		this.stopClearTimer(), !(!this.config || this.config.clear_after_ms === 0) && (this.clearTimer = setTimeout(() => {
+		this.stopClearTimer(), this.config && this.config.clear_after_ms !== 0 && (this.clearTimer = setTimeout(() => {
 			this.code = "", this.clearTimer = null;
 		}, this.config.clear_after_ms));
 	}
 	press(e) {
-		!this.config || this.busy || (this.notice = null, e === "clear" ? this.code = "" : e === "back" ? this.code = this.code.slice(0, -1) : this.code.length < this.config.max_length && (this.code += e), this.armClearTimer());
+		this.config && !this.busy && (this.notice = null, e === "clear" ? this.code = "" : e === "back" ? this.code = this.code.slice(0, -1) : this.code.length < this.config.max_length && (this.code += e), this.armClearTimer());
 	}
 	async submit() {
 		let e = this.config, t = this.hass;
