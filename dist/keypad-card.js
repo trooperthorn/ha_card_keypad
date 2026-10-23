@@ -677,14 +677,13 @@ var Oe = "0123456789ABCDEF<>[]{}=+-*/%#@$&", ke = class {
 		let e = this.context;
 		if (!e) return;
 		let { width: t, height: n } = this.canvas;
-		if (t === 0 || n === 0) {
-			this.resize();
-			return;
-		}
-		e.fillStyle = "rgba(0, 0, 0, 0.12)", e.fillRect(0, 0, t, n), e.font = `${this.fontSize}px monospace`, e.textBaseline = "top";
-		for (let t = 0; t < this.columns.length; t += 1) {
-			let r = this.columns[t] ?? 0, i = Oe[Math.floor(Math.random() * 32)] ?? "0", a = t * this.fontSize;
-			e.fillStyle = this.color, e.fillText(i, a, r * this.fontSize), r * this.fontSize > n && Math.random() > .96 ? this.columns[t] = Math.floor(Math.random() * -10) : this.columns[t] = r + 1;
+		if (t === 0 || n === 0) this.resize();
+		else {
+			e.fillStyle = "rgba(0, 0, 0, 0.12)", e.fillRect(0, 0, t, n), e.font = `${this.fontSize}px monospace`, e.textBaseline = "top";
+			for (let t = 0; t < this.columns.length; t += 1) {
+				let r = this.columns[t] ?? 0, i = Oe[Math.floor(Math.random() * 32)] ?? "0", a = t * this.fontSize;
+				e.fillStyle = this.color, e.fillText(i, a, r * this.fontSize), r * this.fontSize > n && Math.random() > .96 ? this.columns[t] = Math.floor(Math.random() * -10) : this.columns[t] = r + 1;
+			}
 		}
 	}
 }, Ae = ce`<svg viewBox="0 0 120 140" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="locked shield">
@@ -704,7 +703,7 @@ var Oe = "0123456789ABCDEF<>[]{}=+-*/%#@$&", ke = class {
   </g>
 </svg>`;
 //#endregion
-//#region \0@oxc-project+runtime@0.151.0/helpers/esm/decorate.js
+//#region \0@oxc-project+runtime@0.153.0/helpers/esm/decorate.js
 function Q(e, t, n, r) {
 	var i = arguments.length, a = i < 3 ? t : r === null ? r = Object.getOwnPropertyDescriptor(t, n) : r, o;
 	if (typeof Reflect == "object" && typeof Reflect.decorate == "function") a = Reflect.decorate(e, t, n, r);
