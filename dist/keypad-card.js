@@ -1057,4 +1057,4 @@ je = $, je.styles = o`
 	name: "Keypad Card",
 	description: "Numeric keypad that submits a code to an alarm control panel action.",
 	preview: !1
-}), console.info("%c keypad-card %c 2026.10.23.2 ", "color: white; background: #03a9f4", "");
+}), console.info("%c keypad-card %c 2026.11.22.1 ", "color: white; background: #03a9f4", "");
