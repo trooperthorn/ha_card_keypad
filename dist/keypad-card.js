@@ -1,4 +1,4 @@
-//#region node_modules/@lit/reactive-element/css-tag.js
+// node_modules/@lit/reactive-element/css-tag.js
 var e = globalThis, t = e.ShadowRoot && (e.ShadyCSS === void 0 || e.ShadyCSS.nativeShadow) && "adoptedStyleSheets" in Document.prototype && "replace" in CSSStyleSheet.prototype, n = Symbol(), r = /* @__PURE__ */ new WeakMap(), i = class {
 	constructor(e, t, r) {
 		if (this._$cssResult$ = !0, r !== n) throw Error("CSSResult is not constructable. Use `unsafeCSS` or `css` instead.");
@@ -252,8 +252,7 @@ var S = class extends HTMLElement {
 	firstUpdated(e) {}
 };
 S.elementStyles = [], S.shadowRootOptions = { mode: "open" }, S[v("elementProperties")] = /* @__PURE__ */ new Map(), S[v("finalized")] = /* @__PURE__ */ new Map(), ee?.({ ReactiveElement: S }), (h.reactiveElementVersions ??= []).push("2.1.2");
-//#endregion
-//#region node_modules/lit-html/lit-html.js
+// node_modules/lit-html/lit-html.js
 var C = globalThis, te = (e) => e, w = C.trustedTypes, T = w ? w.createPolicy("lit-html", { createHTML: (e) => e }) : void 0, E = "$lit$", D = `lit$${Math.random().toFixed(9).slice(2)}$`, O = "?" + D, ne = `<${O}>`, k = document, A = () => k.createComment(""), j = (e) => e === null || typeof e != "object" && typeof e != "function", M = Array.isArray, re = (e) => M(e) || typeof e?.[Symbol.iterator] == "function", N = "[ 	\n\f\r]", P = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, F = /-->/g, I = />/g, L = RegExp(`>|${N}(?:([^\\s"'>=/]+)(${N}*=${N}*(?:[^ \t\n\f\r"'\`<>=]|("|')|))|$)`, "g"), ie = /'/g, ae = /"/g, oe = /^(?:script|style|textarea|title)$/i, se = (e) => (t, ...n) => ({
 	_$litType$: e,
 	strings: t,
@@ -508,8 +507,7 @@ var ge = (e, t, n) => {
 Y._$litElement$ = !0, Y.finalized = !0, J.litElementHydrateSupport?.({ LitElement: Y });
 var _e = J.litElementPolyfillSupport;
 _e?.({ LitElement: Y }), (J.litElementVersions ??= []).push("4.2.2");
-//#endregion
-//#region node_modules/@lit/reactive-element/decorators/property.js
+// node_modules/@lit/reactive-element/decorators/property.js
 var ve = {
 	attribute: !0,
 	type: String,
@@ -545,8 +543,7 @@ function be(e) {
 		return t.constructor.createProperty(n, e), r ? Object.getOwnPropertyDescriptor(t, n) : void 0;
 	})(e, t, n);
 }
-//#endregion
-//#region node_modules/@lit/reactive-element/decorators/state.js
+// node_modules/@lit/reactive-element/decorators/state.js
 function X(e) {
 	return be({
 		...e,
@@ -554,8 +551,7 @@ function X(e) {
 		attribute: !1
 	});
 }
-//#endregion
-//#region src/config.ts
+// src/config.ts
 var xe = /* @__PURE__ */ new Set([
 	"disarm",
 	"arm_home",
@@ -602,9 +598,9 @@ function De(e) {
 	let n = e;
 	for (let e of Object.keys(n)) Se.has(e) || t.push(`unknown option: ${e}`);
 	let r = n.entity;
-	(typeof r != "string" || !r.startsWith("alarm_control_panel.")) && t.push("entity must be an alarm_control_panel entity id");
+	typeof r == "string" && r.startsWith("alarm_control_panel.") || t.push("entity must be an alarm_control_panel entity id");
 	let i = n.action ?? "disarm";
-	(typeof i != "string" || !xe.has(i)) && t.push("action must be one of disarm, arm_home, arm_away, arm_night, arm_vacation");
+	typeof i == "string" && xe.has(i) || t.push("action must be one of disarm, arm_home, arm_away, arm_night, arm_vacation");
 	let a = n.title;
 	a !== void 0 && typeof a != "string" && t.push("title must be a string");
 	let o = n.submit_label ?? "Submit";
@@ -612,9 +608,9 @@ function De(e) {
 	let s = Z(n.min_length, 4, 1, 16, "min_length", t), c = Z(n.max_length, 8, 1, 16, "max_length", t);
 	s > c && t.push("min_length cannot exceed max_length");
 	let l = Z(n.clear_after_ms, 3e4, 0, 6e5, "clear_after_ms", t), u = Z(n.key_size, 96, 48, 200, "key_size", t), d = n.layout ?? "auto";
-	(typeof d != "string" || !Te.has(d)) && t.push("layout must be auto, portrait, or landscape");
+	typeof d == "string" && Te.has(d) || t.push("layout must be auto, portrait, or landscape");
 	let f = n.theme ?? "plain";
-	(typeof f != "string" || !we.has(f)) && t.push("theme must be plain or phosphor");
+	typeof f == "string" && we.has(f) || t.push("theme must be plain or phosphor");
 	let p = n.matrix ?? !1;
 	typeof p != "boolean" && t.push("matrix must be true or false");
 	let m = n.caption;
@@ -622,14 +618,14 @@ function De(e) {
 	let h = n.fill ?? !1;
 	typeof h != "boolean" && t.push("fill must be true or false");
 	let g = n.left_icon ?? "none";
-	(typeof g != "string" || !Ce.has(g)) && t.push("left_icon must be none or shield-lock");
+	typeof g == "string" && Ce.has(g) || t.push("left_icon must be none or shield-lock");
 	for (let e of [
 		"left_heading",
 		"left_text",
 		"right_heading"
 	]) n[e] !== void 0 && typeof n[e] != "string" && t.push(`${e} must be a string`);
 	let _ = n.right_entity;
-	return _ !== void 0 && (typeof _ != "string" || !_.includes(".")) && t.push("right_entity must be an entity id"), t.length > 0 ? { errors: t } : {
+	return _ === void 0 || typeof _ == "string" && _.includes(".") || t.push("right_entity must be an entity id"), t.length > 0 ? { errors: t } : {
 		errors: t,
 		config: {
 			type: String(n.type ?? "custom:keypad-card"),
@@ -654,8 +650,7 @@ function De(e) {
 		}
 	};
 }
-//#endregion
-//#region src/matrix-rain.ts
+// src/matrix-rain.ts
 var Oe = "0123456789ABCDEF<>[]{}=+-*/%#@$&", ke = class {
 	constructor(e, t, n, r) {
 		this.canvas = e, this.color = t, this.fontSize = n, this.fps = r, this.columns = [], this.timer = null, this.context = e.getContext("2d");
@@ -702,16 +697,14 @@ var Oe = "0123456789ABCDEF<>[]{}=+-*/%#@$&", ke = class {
     <ellipse cx="4" cy="96" rx="4" ry="6"/><ellipse cx="116" cy="88" rx="4" ry="6"/>
   </g>
 </svg>`;
-//#endregion
-//#region \0@oxc-project+runtime@0.153.0/helpers/esm/decorate.js
+// \0@oxc-project+runtime@0.156.0/helpers/esm/decorate.js
 function Q(e, t, n, r) {
 	var i = arguments.length, a = i < 3 ? t : r === null ? r = Object.getOwnPropertyDescriptor(t, n) : r, o;
 	if (typeof Reflect == "object" && typeof Reflect.decorate == "function") a = Reflect.decorate(e, t, n, r);
 	else for (var s = e.length - 1; s >= 0; s--) (o = e[s]) && (a = (i < 3 ? o(a) : i > 3 ? o(t, n, a) : o(t, n)) || a);
 	return i > 3 && a && Object.defineProperty(t, n, a), a;
 }
-//#endregion
-//#region src/keypad-card.ts
+// src/keypad-card.ts
 var je, Me = [
 	"1",
 	"2",
@@ -1065,4 +1058,3 @@ je = $, je.styles = o`
 	description: "Numeric keypad that submits a code to an alarm control panel action.",
 	preview: !1
 }), console.info("%c keypad-card %c 2026.10.23.2 ", "color: white; background: #03a9f4", "");
-//#endregion
